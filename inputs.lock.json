@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "runtime": "sherpa-onnx",
+  "version": "1.13.8",
+  "source": {
+    "repository": "https://github.com/k2-fsa/sherpa-onnx",
+    "release": "v1.13.8",
+    "commit": "11afbd009a7f8c08f4bcf2fc1b265d0df4670fbf"
+  },
+  "artifacts": {
+    "aarch64-apple-darwin": {
+      "name": "sherpa-onnx-v1.13.8-osx-arm64-static-lib.tar.bz2",
+      "sha256": "9091bf160dc7fdacedbc906b212badf53c2993f4e5277a0e03998e96c31d60da",
+      "size": 20965936
+    },
+    "x86_64-apple-darwin": {
+      "name": "sherpa-onnx-v1.13.8-osx-x64-static-lib.tar.bz2",
+      "sha256": "a3f88da3e54c850a12d61431e73f8affcd1f13738b75b768847dd79541835b4b",
+      "size": 20575933
+    },
+    "aarch64-unknown-linux-gnu": {
+      "name": "sherpa-onnx-v1.13.8-linux-aarch64-static-lib.tar.bz2",
+      "sha256": "77983e3cf29aa60f2e531d249dbd01d15596530550c8db2e9e02fc6a655da6bb",
+      "size": 21325380
+    },
+    "x86_64-unknown-linux-gnu": {
+      "name": "sherpa-onnx-v1.13.8-linux-x64-static-lib.tar.bz2",
+      "sha256": "e1fdc5b67530e15741ef897fa5ffff297056f3bf0c6d829a27af9225a4c4b5a6",
+      "size": 22952328
+    },
+    "aarch64-pc-windows-msvc": {
+      "name": "sherpa-onnx-v1.13.8-win-arm64-static-MT-Release-lib.tar.bz2",
+      "sha256": "609988769f805ca2a602622174ac737edf6dce8a50efa2da9da2d915947da31b",
+      "size": 140595209
+    },
+    "x86_64-pc-windows-msvc": {
+      "name": "sherpa-onnx-v1.13.8-win-x64-static-MT-Release-lib.tar.bz2",
+      "sha256": "56ffcf3c454c1f14f7bc9887286cc8143e7e542dc632804e1c447d5f8d534eaf",
+      "size": 123206268
+    }
+  },
+  "bundleVersion": "1.13.8-ash.1",
+  "bindings": {
+    "crate": "sherpa-onnx-sys",
+    "version": "1.13.8",
+    "sha256": "14bbeabb73f73f1c1f4a278af0ee9ae90a19f9727482027047fb9422fa14f8fe",
+    "files": {
+      "src/audio_tagging.rs": "139301b3753b080476c1ce17f42ef83103a90957db99f71eeffc71c76f701d28",
+      "src/kws.rs": "51681240a4c7158467d77a1a792c143a79fa5fc6d3754d40d15ac41948790462",
+      "src/lib.rs": "52d3f71aab747af4649dacd7d6f2be7f1e0b20b0b2684547d5bd08e5694d1b43",
+      "src/offline_asr.rs": "d408f95bdf53f1e46f07ef5d9de700b736736c0b6ae956df99ca316bd991f7c8",
+      "src/offline_punctuation.rs": "c380194c1fda8a1ab3aef59a6065b4b8735b6f62ebd8f47fa93897f7e339df85",
+      "src/offline_speaker_diarization.rs": "b2584b43ebe5d1ad5d2e7ea8275bed35f5c4ae2a3ede769062ef6c4e32df3656",
+      "src/online_asr.rs": "19f15ac580c4b1c2024b9b70ac9d348a4dd86e95e0118585b54b3c940e19825c",
+      "src/online_punctuation.rs": "caf9ca6e116a747d983fc109eb6664dcb52bf7611021b0f9ab7981f57c12078f",
+      "src/resampler.rs": "c4017b0e121577c166665cb7295cedfc66179a6c30c45a20e529ef148ea75358",
+      "src/speaker_embedding.rs": "6f89e62a709c33024e2ab209aee7c123e43f3b04b231b810958f2ee8a18e58cf",
+      "src/speech_denoiser.rs": "1922c1536c5902590320e0380df526290f93d423a14838cdef6e7a478148aa9b",
+      "src/spoken_language_identification.rs": "20ec96af0fbcccfb3e8a381643d1d90e3e6434936f6040897e130f1abbec95dd",
+      "src/tts.rs": "d1a949a60edc3f670ece52246b5083869f81fefcc9ea9b9ea7c1a4280df094f7",
+      "src/vad.rs": "d1e93356889a7dcd524172ccff22acdf7b87c8e0f1a4f77f1e35fa5e5768a13d",
+      "src/wave.rs": "3610968cfb6511db142449f391850e96d02253f607eb940a90d285cf60b5440d"
+    }
+  }
+}

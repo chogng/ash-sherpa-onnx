@@ -1,0 +1,117 @@
+name: Publish Sherpa ONNX artifacts
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the locked bundle after all platform builds succeed
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sherpa-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    outputs:
+      upstream: ${{ steps.lock.outputs.upstream }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - run: python scripts/artifacts.py verify
+      - run: rustfmt --check --edition 2021 build.rs
+      - id: lock
+        shell: bash
+        run: python -c 'import json,os; d=json.load(open("inputs.lock.json")); open(os.environ["GITHUB_OUTPUT"],"a").write("upstream="+d["source"]["commit"]+"\n")'
+
+  build:
+    needs: verify
+    if: github.event_name != 'push'
+    name: Consumer build / ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {target: x86_64-pc-windows-msvc, runner: windows-2025}
+          - {target: aarch64-pc-windows-msvc, runner: windows-2025}
+          - {target: x86_64-apple-darwin, runner: macos-15-intel}
+          - {target: aarch64-apple-darwin, runner: macos-15}
+          - {target: x86_64-unknown-linux-gnu, runner: ubuntu-22.04}
+          - {target: aarch64-unknown-linux-gnu, runner: ubuntu-22.04-arm}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: k2-fsa/sherpa-onnx
+          ref: ${{ needs.verify.outputs.upstream }}
+          path: .build/upstream
+          persist-credentials: false
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756
+        if: runner.os == 'Windows'
+        with:
+          arch: ${{ matrix.target == 'aarch64-pc-windows-msvc' && 'amd64_arm64' || 'amd64' }}
+      - run: rustup target add ${{ matrix.target }}
+      - name: Prepare locked static libraries
+        run: python scripts/artifacts.py stage --target ${{ matrix.target }}
+      - name: Select thin sys crate for the upstream example
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ["GITHUB_WORKSPACE"])
+          manifest = root / ".build/upstream/rust-api-examples/Cargo.toml"
+          with manifest.open("a", encoding="utf-8") as output:
+              output.write('\n[patch.crates-io]\nsherpa-onnx-sys = { path = ' + json.dumps(root.as_posix()) + ' }\n')
+          PY
+      - name: Build upstream streaming recognizer example
+        env:
+          RUSTFLAGS: ${{ runner.os == 'Windows' && '-C target-feature=+crt-static' || '' }}
+        run: cargo build --manifest-path .build/upstream/rust-api-examples/Cargo.toml --example streaming_zipformer --target ${{ matrix.target }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sherpa-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    needs: [verify, build]
+    if: github.event_name == 'workflow_dispatch' && inputs.publish && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: sherpa-*
+          path: dist
+          merge-multiple: true
+      - run: python scripts/artifacts.py aggregate
+      - name: Publish immutable bundle
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RELEASE_TAG=$(python -c 'import json; print("v" + json.load(open("inputs.lock.json"))["bundleVersion"])')
+          gh release create "$RELEASE_TAG" dist/* --target "$GITHUB_SHA" --title "Sherpa ONNX $RELEASE_TAG" --generate-notes

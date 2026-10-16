@@ -1,0 +1,20 @@
+Sherpa ONNX static library distribution for Ash
+
+Upstream: https://github.com/k2-fsa/sherpa-onnx/tree/v1.13.8
+Rust FFI declarations: sherpa-onnx-sys 1.13.8, Apache-2.0
+Copyright (c) 2022-2026 Xiaomi Corporation and contributors.
+See LICENSE for the Apache License, Version 2.0.
+
+Release static archives are unmodified upstream CPU archives. They also contain
+ONNX Runtime, Kaldi decoder, kaldifst/OpenFst, kaldi-native-fbank, KissFFT,
+piper-phonemize, espeak-ng, ucd-tools and simple-sentencepiece components.
+Each component retains its own license; Apache-2.0 for this repository does not
+relicense these libraries. espeak-ng is GPL-3.0-or-later.
+
+Corresponding upstream sources, dependency pins and license information:
+https://github.com/k2-fsa/sherpa-onnx/tree/v1.13.8/cmake
+https://github.com/microsoft/onnxruntime
+https://github.com/rhasspy/piper-phonemize
+https://github.com/espeak-ng/espeak-ng
+
+Packaging/build integration in this repository is distributed under Apache-2.0.
